@@ -1,13 +1,9 @@
 package com.epam.izh.rd.online.service;
 
 import com.epam.izh.rd.online.helper.Direction;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static java.util.Collections.*;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Данный класс обязан использовать StreamApi из функционала Java 8. Функциональность должна быть идентична
@@ -16,36 +12,44 @@ import static java.util.Collections.*;
 public class StreamApiTextStatisticsAnalyzer implements TextStatisticsAnalyzer {
     @Override
     public int countSumLengthOfWords(String text) {
-        return 0;
+        return getWords(text).stream().mapToInt(String::length).sum();
     }
 
     @Override
     public int countNumberOfWords(String text) {
-        return 0;
+        return (int) getWords(text).stream().count();
     }
 
     @Override
     public int countNumberOfUniqueWords(String text) {
-        return 0;
+        return (int) getUniqueWords(text).stream().count();
     }
 
     @Override
     public List<String> getWords(String text) {
-        return emptyList();
+        return Stream.of(text.split("\\W+")).collect(Collectors.toList());
     }
 
     @Override
     public Set<String> getUniqueWords(String text) {
-        return emptySet();
+        return new HashSet<>(getWords(text));
     }
 
     @Override
     public Map<String, Integer> countNumberOfWordsRepetitions(String text) {
-        return emptyMap();
+        Map<String, Integer> wordsStatistic = new HashMap<>();
+        List<String> words = getWords(text);
+
+        getUniqueWords(text).forEach(word -> wordsStatistic.put(word, (int) words.stream().filter(word::equals).count()));
+        return wordsStatistic;
     }
 
     @Override
     public List<String> sortWordsByLength(String text, Direction direction) {
-        return emptyList();
+        return getWords(text).stream()
+                .sorted(((o1, o2) -> direction == Direction.ASC ?
+                        o1.length() - o2.length() :
+                        o2.length() - o1.length()))
+                .collect(Collectors.toList());
     }
 }
